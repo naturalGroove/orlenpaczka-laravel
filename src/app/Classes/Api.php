@@ -9,13 +9,31 @@ class Api
 {
     use functions;
 
+    protected static ?string $dynamicApiId = null;
+    protected static ?string $dynamicApiKey = null;
+    protected static ?bool $sandbox = null;
+
     protected string $apiId, $apiKey, $url;
+
+    public static function setSandbox(bool $sandbox = true): void
+    {
+        self::$sandbox = $sandbox;
+    }
+
+    public static function setCredentials(string $apiId, string $apiKey): void
+    {
+        self::$dynamicApiId = $apiId;
+        self::$dynamicApiKey = $apiKey;
+    }
 
     public function __construct()
     {
-        $this->apiId = config('op.api_id');
-        $this->apiKey = config('op.api_key');
-        $this->url = config('op.sandbox') ? config('op.sandbox_url') : config('op.api_url');
+        $sandbox = (self::$sandbox === null) ? config('op.sandbox') : self::$sandbox;
+
+        $this->apiId = (self::$dynamicApiId === null) ? config('op.api_id') : self::$dynamicApiId;
+        $this->apiKey = (self::$dynamicApiKey === null) ? config('op.api_key') : self::$dynamicApiKey;
+
+        $this->url = $sandbox ? config('op.sandbox_url') : config('op.api_url');
     }
 
     /*
@@ -42,8 +60,7 @@ class Api
         $content = $response->getBody()->getContents();
 
         $soap = simplexml_load_string($content);
-        $response = $soap->children('http://www.w3.org/2003/05/soap-envelope')->Body->children(
-        )->{$endpoint . 'Response'};
+        $response = $soap->children('http://www.w3.org/2003/05/soap-envelope')->Body->children()->{$endpoint . 'Response'};
         $response = is_null($resultType) ? $response->{$endpoint . 'Result'}->Data : $response->{$resultType};
 
         return json_decode(json_encode($response), true);
