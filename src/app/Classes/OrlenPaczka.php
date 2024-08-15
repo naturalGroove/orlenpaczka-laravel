@@ -18,4 +18,14 @@ class OrlenPaczka
     {
         return new GenerateLabelBusinessPack();
     }
+
+    public static function label(): Label
+    {
+        return new Label();
+    }
+
+    public static function pack(): Pack
+    {
+        return new Pack();
+    }
 }

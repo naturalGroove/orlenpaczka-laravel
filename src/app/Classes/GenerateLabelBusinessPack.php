@@ -14,7 +14,7 @@ class GenerateLabelBusinessPack extends Api
         $label = $this->postData('GenerateLabelBusinessPack', $data, 'LabelData');
 
         if (!is_array($label) || empty($label)) {
-            abort(500, 'Error while generating label');
+            throw new \Exception('OrlenPaczka-GenerateLabelBusinessPack: Error while generating label');
         }
 
         return base64_decode($label[0]);
